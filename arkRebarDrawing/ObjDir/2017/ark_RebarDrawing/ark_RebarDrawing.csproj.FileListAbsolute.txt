@@ -1,0 +1,8 @@
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ark_RebarDrawing\bin\Debug\ark_RebarDrawing.dll
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ark_RebarDrawing\bin\Debug\ark_RebarDrawing.pdb
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.csprojAssemblyReference.cache
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.csproj.GenerateResource.cache
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.csproj.CoreCompileInputs.cache
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.dll
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.pdb
+C:\Users\theAr\Source\Repos\arkRebarDrawing\arkRebarDrawing\ObjDir\2017\ark_RebarDrawing\ark_RebarDrawing.arkRebarDrawingForm.resources
