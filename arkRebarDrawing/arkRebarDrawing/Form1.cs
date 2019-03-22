@@ -19,6 +19,8 @@ namespace arkRebarDrawing
         public Form1()
         {
             InitializeComponent();
+
+            this.TopMost = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -26,7 +28,6 @@ namespace arkRebarDrawing
             tsd.DrawingHandler dh = new tsd.DrawingHandler();
 
             ui.DrawingObjectSelector dos = dh.GetDrawingObjectSelector();
-            //tsd.DrawingObjectEnumerator doe = dos.GetSelected();
 
             tsd.ViewBase vv = null;
             tsd.DrawingObject dobj = null;
@@ -40,15 +41,6 @@ namespace arkRebarDrawing
 
 
             groups.Add(dobj as tsd.ReinforcementGroup);
-
-           /* while(doe.MoveNext())
-            {
-                //
-                if (doe.Current is tsd.ReinforcementGroup)
-                {
-                    groups.Add(doe.Current as tsd.ReinforcementGroup);
-                }
-            }*/
 
             foreach(var v in groups)
             {
@@ -86,60 +78,151 @@ namespace arkRebarDrawing
                     (new Point(max.X, min.Y, min.Z))
                     );
                 line.Insert();
-
-                /*List<Point> points = new List<Point>();
-                foreach(var ps in rg.Polygons)
-                {
-                    foreach(var pps in ((Polygon)ps).Points)
-                    {
-                        points.Add(m.Transform(pps as Point));
-                    }
-                }*/
-
-               /* string axis = points[0].X - points[1].X != 0 ? "x" : points[1].Y - points[0].Y != 0 ? "y" : "z";
-
-                //tsd.StraightDimensionSet sds = new tsd.StraightDimensionSetHandler().CreateDimensionSet(;
-                tsd.PointList pls = new tsd.PointList();
-                Vector v1 = new Vector(1, 0, 0);
-                Vector v2 = new Vector(0, 1, 0);
-                Vector v3 = new Vector(0, 0, 1);
-
-                Point begin = new Point(min.X, min.Y, min.Z);
-                pls.Add(m.Transform(begin));
-                foreach (double d in dist)
-                {
-                    if (axis == "x")
-                    {
-                        begin.X += d;
-                    }
-                    else if (axis == "y")
-                    {
-                        begin.Y += d;
-                    }
-                    else
-                    {
-                        begin.Z += d;
-                    }
-                    pls.Add(m.Transform(begin));
-                }
-
-                try
-                {
-                    new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pls, v1, 100);
-                }
-                catch { }
-                try
-                {
-                    new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pls, v2, 100);
-                }
-                catch { }
-                try
-                {
-                    new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pls, v3, 100);
-                }
-                catch { }*/
-
             }
         }
+
+
+        /// <summary>
+        /// 0 - X, 1 - Y
+        /// </summary>
+        /// <param name="axis"></param>
+        void RebarDimension(int axis)
+        {
+            try
+            {
+                tsd.DrawingHandler dh = new tsd.DrawingHandler();
+
+                ui.DrawingObjectSelector dos = dh.GetDrawingObjectSelector();
+                tsd.ViewBase vv = null;
+                tsd.DrawingObject dobj = null;
+
+                ui.Picker picker = dh.GetPicker();
+                picker.PickObject("", out dobj, out vv);
+
+                tsd.View vw = vv as tsd.View;
+                
+                WorkPlaneHandler wph = new Model().GetWorkPlaneHandler();
+                TransformationPlane tp = wph.GetCurrentTransformationPlane();
+                TransformationPlane tp0 = new TransformationPlane(vw.DisplayCoordinateSystem);
+                wph.SetCurrentTransformationPlane(tp0);
+                try
+                {
+                    List<tsd.ReinforcementGroup> groups = new List<tsd.ReinforcementGroup>();
+                    groups.Add(dobj as tsd.ReinforcementGroup);
+                    Matrix m = MatrixFactory.ToCoordinateSystem(vw.DisplayCoordinateSystem);
+                    foreach (tsd.ReinforcementGroup rg in groups)
+                    {
+                        ModelObject mrg = new Model().SelectModelObject(new Tekla.Structures.Identifier(rg.ModelIdentifier.ID));
+                        RebarGroup rgm = mrg as RebarGroup;
+                        rgm.Select();
+
+                        string result = "";
+                        int number = 0;
+
+                        rgm.GetReportProperty("CC", ref result); //175/200
+                        rgm.GetReportProperty("NUMBER", ref number);
+
+                        string size = rgm.Size;
+                        Point min = (rgm.GetSolid().MinimumPoint);
+                        Point max = (rgm.GetSolid().MaximumPoint);
+                        tsd.PointList pl = new tsd.PointList();
+                        double fst = 0;
+                        double step = 0;
+
+                        if (result.Contains("/"))
+                        {
+                            fst = Convert.ToDouble(result.Split(new char[] { '/' })[0]);
+                            step = Convert.ToDouble(result.Split(new char[] { '/' })[1]);
+                            number -= 3;
+                        }
+                        else
+                        {
+                            step = Convert.ToDouble(result);
+                            number -= 1;
+                        }
+
+                        //number -= 2;
+
+                        if (axis == 0)
+                        {
+                            min.X += (Convert.ToDouble(size) * 0.5);
+                        }
+                        else
+                        {
+                            min.Y += (Convert.ToDouble(size) * 0.5);
+                        }
+                        pl.Add(new Point(min));
+                        if (axis == 0)
+                        {
+                            min.X += fst;
+                        }
+                        else
+                        {
+                            min.Y += fst;
+                        }
+                        pl.Add(new Point(min));
+                        for (int i = 0; i < number; i++)
+                        {
+                            if (axis == 0)
+                            {
+                                min.X += step;
+                            }
+                            else
+                            {
+                                min.Y += step;
+                            }
+                            pl.Add(new Point(min));
+                        }
+                        if (axis == 0)
+                        {
+                            min.X += fst;
+                        }
+                        else
+                        {
+                            min.Y += fst;
+                        }
+                        pl.Add(new Point(min));
+
+                        Vector v1 = new Vector(1, 0, 0);
+                        Vector v2 = new Vector(0, 1, 0);
+                        Vector v3 = new Vector(0, 0, 1);
+                        try
+                        {
+                            new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pl, v1, 100);
+                        }
+                        catch { }
+                        try
+                        {
+                            new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pl, v2, 100);
+                        }
+                        catch { }
+                        try
+                        {
+                            new tsd.StraightDimensionSetHandler().CreateDimensionSet(vw, pl, v3, 100);
+                        }
+                        catch { }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Что-то пошло не так");
+                }
+                finally
+                {
+
+                    wph.SetCurrentTransformationPlane(tp);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Выбрать не тот объект");
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e) => RebarDimension(1);
+
+        private void button2_Click(object sender, EventArgs e) => RebarDimension(0);
+
     }
 }
